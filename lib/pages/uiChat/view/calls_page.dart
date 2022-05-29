@@ -4,14 +4,20 @@ import 'package:line_icons/line_icons.dart';
 import 'package:whatapp_clone_ui/customizedWidget/commonWidget.dart';
 import 'package:whatapp_clone_ui/json/chat_json.dart';
 import 'package:whatapp_clone_ui/theme/colors.dart';
+import 'package:whatapp_clone_ui/pages/uiChat/view/chat_page.dart';
+import 'package:sip_ua/sip_ua.dart';
 
 class CallsPage extends StatefulWidget {
+  final SIPUAHelper? _helper;
+  CallsPage(this._helper, {Key? key}) : super(key: key);
+
   @override
   _CallsPageState createState() => _CallsPageState();
 }
 
-class _CallsPageState extends State<CallsPage> {
+class _CallsPageState extends State<CallsPage>{
   int activeMenu = 0;
+  SIPUAHelper? get helper => widget._helper;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,13 +29,14 @@ class _CallsPageState extends State<CallsPage> {
         foregroundColor: floating_foregroundColor,
         onPressed: () {
           // Respond to button press
+          ChatPage(helper);
         },
         child: Icon(Icons.add_call),
       ),
     );
   }
 
-  Widget getAppBar() {
+  PreferredSizeWidget getAppBar() {
     return AppBar(
       backgroundColor: bgColor,
       centerTitle: true,
@@ -383,4 +390,6 @@ class _CallsPageState extends State<CallsPage> {
       );
     }));
   }
+
+
 }

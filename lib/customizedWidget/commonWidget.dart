@@ -16,7 +16,7 @@ IconButton settingWigdet(context) {
 }
 
 class SettingMenuChatPage extends StatefulWidget {
-  SettingMenuChatPage({Key key}) : super(key: key);
+  SettingMenuChatPage({Key? key}) : super(key: key);
 
   @override
   State<SettingMenuChatPage> createState() => _SettingMenuChatPageState();
@@ -50,7 +50,7 @@ class _SettingMenuChatPageState extends State<SettingMenuChatPage> {
 }
 
 class SettingMenuStatusPage extends StatefulWidget {
-  SettingMenuStatusPage({Key key}) : super(key: key);
+  SettingMenuStatusPage({Key? key}) : super(key: key);
 
   @override
   State<SettingMenuStatusPage> createState() => _SettingMenuStatusPageState();
@@ -84,7 +84,7 @@ class _SettingMenuStatusPageState extends State<SettingMenuStatusPage> {
 }
 
 class SettingMenuCallsPage extends StatefulWidget {
-  SettingMenuCallsPage({Key key}) : super(key: key);
+  SettingMenuCallsPage({Key? key}) : super(key: key);
 
   @override
   State<SettingMenuCallsPage> createState() => _SettingMenuCallsPageState();

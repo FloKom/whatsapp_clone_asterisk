@@ -6,13 +6,19 @@ import 'package:whatapp_clone_ui/pages/uiChat/view/chat_detail_page.dart';
 import 'package:whatapp_clone_ui/pages/uiStreaming/settings_page.dart';
 import 'package:whatapp_clone_ui/theme/colors.dart';
 import '../../../theme/colors.dart';
+import 'package:sip_ua/sip_ua.dart';
+
 
 class ChatPage extends StatefulWidget {
+  final SIPUAHelper? _helper;
+
+  ChatPage(this._helper, {Key? key}) : super(key: key);
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage>  {
+  SIPUAHelper? get helper => widget._helper;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,13 +36,13 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget getAppBar() {
+  PreferredSizeWidget getAppBar() {
     return AppBar(
       backgroundColor: bgColor,
       leading: IconButton(
         onPressed: null,
         icon: Text(
-          "Edit",
+          "Edit ",
           style: TextStyle(
               fontSize: 16, color: primary, fontWeight: FontWeight.w500),
         ),
@@ -122,12 +128,15 @@ class _ChatPageState extends State<ChatPage> {
               children: List.generate(chat_data.length, (index) {
             return GestureDetector(
               onTap: () {
+
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (_) => ChatDetailPage(
                               name: chat_data[index]['name'],
                               img: chat_data[index]['img'],
+                              num: chat_data[index]['num'],
+                              helper: helper,
                             )));
               },
               child: Padding(

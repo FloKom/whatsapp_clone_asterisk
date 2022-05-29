@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:whatapp_clone_ui/theme/colors.dart';
 
 class LivePage extends StatefulWidget {
-  LivePage({Key key}) : super(key: key);
+  LivePage({Key? key}) : super(key: key);
 
   @override
   State<LivePage> createState() => _LivePageState();

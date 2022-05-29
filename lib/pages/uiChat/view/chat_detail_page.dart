@@ -3,17 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:whatapp_clone_ui/json/chat_json.dart';
 import 'package:whatapp_clone_ui/theme/colors.dart';
+import 'package:sip_ua/sip_ua.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class ChatDetailPage extends StatefulWidget {
-  final String name;
-  final String img;
+  final String? name;
+  final String? img;
+  final String? num;
+  final SIPUAHelper? helper;
 
-  const ChatDetailPage({Key key, this.name, this.img}) : super(key: key);
+  const ChatDetailPage({Key? key, this.name, this.img, this.num, this.helper}) : super(key: key);
   @override
   _ChatDetailPageState createState() => _ChatDetailPageState();
 }
 
-class _ChatDetailPageState extends State<ChatDetailPage> {
+class _ChatDetailPageState extends State<ChatDetailPage> implements SipUaHelperListener {
+  String? _dest;
+  SIPUAHelper? get helper => widget.helper;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +31,32 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     );
   }
 
-  Widget getAppBar() {
+  Future<Widget?> _handleCall(BuildContext context,
+      [bool voiceonly = false]) async {
+
+    _dest = widget.num;
+
+    final mediaConstraints = <String, dynamic>{'audio': true, 'video': true};
+
+    MediaStream mediaStream;
+
+    if (kIsWeb && !voiceonly) {
+      mediaStream =
+      await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+      mediaConstraints['video'] = false;
+      MediaStream userStream =
+      await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      mediaStream.addTrack(userStream.getAudioTracks()[0], addToNative: true);
+    } else {
+      mediaConstraints['video'] = !voiceonly;
+      mediaStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    }
+
+    helper!.call(_dest!, voiceonly: voiceonly, mediaStream: mediaStream);
+    return null;
+  }
+
+  PreferredSizeWidget getAppBar() {
     return AppBar(
       backgroundColor: greyColor,
       title: Container(
@@ -36,7 +68,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                      image: NetworkImage(widget.img), fit: BoxFit.cover)),
+                      image: NetworkImage(widget.img!), fit: BoxFit.cover)),
             ),
             SizedBox(
               width: 10,
@@ -47,7 +79,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.name,
+                    widget.name!,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -71,18 +103,28 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         ),
       ),
       actions: [
-        Icon(
-          LineIcons.video,
-          color: primary,
-          size: 27,
+        IconButton(
+          icon: Icon(
+            LineIcons.video,
+            color: primary,
+            size: 27,
+          ),
+          onPressed:(){
+            _handleCall(context);
+          },
         ),
         SizedBox(
           width: 15,
         ),
-        Icon(
-          LineIcons.phone,
-          color: primary,
-          size: 27,
+        IconButton(
+          icon: Icon(
+            LineIcons.phone,
+            color: primary,
+            size: 27,
+          ),
+          onPressed:(){
+            _handleCall(context, true);
+          },
         ),
         SizedBox(
           width: 10,
@@ -170,21 +212,41 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           })),
     );
   }
+
+  @override
+  void callStateChanged(Call call, CallState state) {
+    // TODO: implement callStateChanged
+  }
+
+  @override
+  void onNewMessage(SIPMessageRequest msg) {
+    // TODO: implement onNewMessage
+  }
+
+  @override
+  void registrationStateChanged(RegistrationState state) {
+    // TODO: implement registrationStateChanged
+  }
+
+  @override
+  void transportStateChanged(TransportState state) {
+    // TODO: implement transportStateChanged
+  }
 }
 
 class CustomBubbleChat extends StatelessWidget {
-  final bool isMe;
-  final String message;
-  final String time;
-  final bool isLast;
+  final bool? isMe;
+  final String? message;
+  final String? time;
+  final bool? isLast;
 
   const CustomBubbleChat(
-      {Key key, this.isMe, this.message, this.time, this.isLast})
+      {Key? key, this.isMe, this.message, this.time, this.isLast})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    if (isMe) {
-      if (!isLast) {
+    if (isMe!) {
+      if (!isLast!) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -201,14 +263,14 @@ class CustomBubbleChat extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          message,
+                          message!,
                           style: TextStyle(fontSize: 16, color: white),
                         ),
                         SizedBox(
                           height: 3,
                         ),
                         Text(
-                          time,
+                          time!,
                           style: TextStyle(
                               fontSize: 12, color: white.withOpacity(0.4)),
                         ),
@@ -235,14 +297,14 @@ class CustomBubbleChat extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          message,
+                          message!,
                           style: TextStyle(fontSize: 16, color: white),
                         ),
                         SizedBox(
                           height: 3,
                         ),
                         Text(
-                          time,
+                          time!,
                           style: TextStyle(
                               fontSize: 12, color: white.withOpacity(0.4)),
                         ),
@@ -254,7 +316,7 @@ class CustomBubbleChat extends StatelessWidget {
         );
       }
     } else {
-      if (!isLast) {
+      if (!isLast!) {
         return Row(
           children: [
             Flexible(
@@ -271,14 +333,14 @@ class CustomBubbleChat extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          message,
+                          message!,
                           style: TextStyle(fontSize: 16, color: white),
                         ),
                         SizedBox(
                           height: 3,
                         ),
                         Text(
-                          time,
+                          time!,
                           style: TextStyle(
                               fontSize: 12, color: white.withOpacity(0.4)),
                         ),
@@ -304,14 +366,14 @@ class CustomBubbleChat extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          message,
+                          message!,
                           style: TextStyle(fontSize: 16, color: white),
                         ),
                         SizedBox(
                           height: 3,
                         ),
                         Text(
-                          time,
+                          time!,
                           style: TextStyle(
                               fontSize: 12, color: white.withOpacity(0.4)),
                         ),
